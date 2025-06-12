@@ -1,9 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, MapPin, Star, TrendingUp, Users, DollarSign, CheckCircle } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Calendar, Clock, MapPin, Star, TrendingUp, Users, DollarSign, CheckCircle, Settings } from 'lucide-react';
+import ServiceManagement from './ServiceManagement';
 
 const ProviderDashboard = () => {
   const stats = [
@@ -88,87 +90,104 @@ const ProviderDashboard = () => {
           ))}
         </div>
 
-        {/* Pending Bookings */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold">Pending Bookings</h2>
-            <Button variant="outline">View All</Button>
-          </div>
-          <div className="space-y-4">
-            {pendingBookings.map((booking, index) => (
-              <Card key={index} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-4 mb-3">
-                        <div>
-                          <h3 className="font-semibold text-lg">{booking.service}</h3>
-                          <p className="text-gray-600">Customer: {booking.customer}</p>
-                        </div>
-                        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                          Pending
-                        </Badge>
-                      </div>
-                      <div className="flex items-center space-x-6 text-sm text-gray-600">
-                        <div className="flex items-center space-x-1">
-                          <Calendar className="w-4 h-4" />
-                          <span>{booking.date}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Clock className="w-4 h-4" />
-                          <span>{booking.time}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <MapPin className="w-4 h-4" />
-                          <span>{booking.location}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xl font-bold text-green-600">{booking.amount}</p>
-                      <div className="flex space-x-2 mt-2">
-                        <Button size="sm" variant="outline">
-                          Decline
-                        </Button>
-                        <Button size="sm" className="bg-orange-600 hover:bg-orange-700">
-                          Accept
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="bookings" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="bookings">Bookings</TabsTrigger>
+            <TabsTrigger value="services">My Services</TabsTrigger>
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+          </TabsList>
 
-        {/* Quick Actions */}
-        <div>
-          <h2 className="text-xl font-bold mb-6">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="cursor-pointer hover:shadow-md transition-shadow">
-              <CardContent className="p-6 text-center">
-                <Users className="w-8 h-8 text-orange-600 mx-auto mb-3" />
-                <h3 className="font-semibold mb-2">Update Profile</h3>
-                <p className="text-sm text-gray-600">Manage your business details</p>
-              </CardContent>
-            </Card>
-            <Card className="cursor-pointer hover:shadow-md transition-shadow">
-              <CardContent className="p-6 text-center">
-                <Star className="w-8 h-8 text-orange-600 mx-auto mb-3" />
-                <h3 className="font-semibold mb-2">View Reviews</h3>
-                <p className="text-sm text-gray-600">Check customer feedback</p>
-              </CardContent>
-            </Card>
-            <Card className="cursor-pointer hover:shadow-md transition-shadow">
-              <CardContent className="p-6 text-center">
-                <TrendingUp className="w-8 h-8 text-orange-600 mx-auto mb-3" />
-                <h3 className="font-semibold mb-2">Earnings Report</h3>
-                <p className="text-sm text-gray-600">Track your income</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+          <TabsContent value="bookings">
+            {/* Pending Bookings */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold">Pending Bookings</h2>
+                <Button variant="outline">View All</Button>
+              </div>
+              <div className="space-y-4">
+                {pendingBookings.map((booking, index) => (
+                  <Card key={index} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-4 mb-3">
+                            <div>
+                              <h3 className="font-semibold text-lg">{booking.service}</h3>
+                              <p className="text-gray-600">Customer: {booking.customer}</p>
+                            </div>
+                            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                              Pending
+                            </Badge>
+                          </div>
+                          <div className="flex items-center space-x-6 text-sm text-gray-600">
+                            <div className="flex items-center space-x-1">
+                              <Calendar className="w-4 h-4" />
+                              <span>{booking.date}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <Clock className="w-4 h-4" />
+                              <span>{booking.time}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <MapPin className="w-4 h-4" />
+                              <span>{booking.location}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-green-600">{booking.amount}</p>
+                          <div className="flex space-x-2 mt-2">
+                            <Button size="sm" variant="outline">
+                              Decline
+                            </Button>
+                            <Button size="sm" className="bg-orange-600 hover:bg-orange-700">
+                              Accept
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="services">
+            <ServiceManagement />
+          </TabsContent>
+
+          <TabsContent value="profile">
+            {/* Quick Actions */}
+            <div>
+              <h2 className="text-xl font-bold mb-6">Profile & Settings</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card className="cursor-pointer hover:shadow-md transition-shadow">
+                  <CardContent className="p-6 text-center">
+                    <Users className="w-8 h-8 text-orange-600 mx-auto mb-3" />
+                    <h3 className="font-semibold mb-2">Update Profile</h3>
+                    <p className="text-sm text-gray-600">Manage your business details</p>
+                  </CardContent>
+                </Card>
+                <Card className="cursor-pointer hover:shadow-md transition-shadow">
+                  <CardContent className="p-6 text-center">
+                    <Star className="w-8 h-8 text-orange-600 mx-auto mb-3" />
+                    <h3 className="font-semibold mb-2">View Reviews</h3>
+                    <p className="text-sm text-gray-600">Check customer feedback</p>
+                  </CardContent>
+                </Card>
+                <Card className="cursor-pointer hover:shadow-md transition-shadow">
+                  <CardContent className="p-6 text-center">
+                    <TrendingUp className="w-8 h-8 text-orange-600 mx-auto mb-3" />
+                    <h3 className="font-semibold mb-2">Earnings Report</h3>
+                    <p className="text-sm text-gray-600">Track your income</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
