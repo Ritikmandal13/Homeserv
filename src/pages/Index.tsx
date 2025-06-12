@@ -3,6 +3,8 @@ import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 import Header from '@/components/Header';
+import CustomerDashboard from '@/components/CustomerDashboard';
+import ProviderDashboard from '@/components/ProviderDashboard';
 import Hero from '@/components/Hero';
 import Services from '@/components/Services';
 import Features from '@/components/Features';
@@ -11,7 +13,7 @@ import CTA from '@/components/CTA';
 import Footer from '@/components/Footer';
 
 const Index = () => {
-  const { loading } = useAuth();
+  const { loading, user, profile } = useAuth();
 
   if (loading) {
     return (
@@ -21,6 +23,21 @@ const Index = () => {
     );
   }
 
+  // If user is authenticated, show role-based dashboard
+  if (user && profile) {
+    return (
+      <div className="min-h-screen">
+        <Header />
+        {profile.role === 'service_provider' ? (
+          <ProviderDashboard />
+        ) : (
+          <CustomerDashboard />
+        )}
+      </div>
+    );
+  }
+
+  // If user is not authenticated, show landing page
   return (
     <div className="min-h-screen">
       <Header />

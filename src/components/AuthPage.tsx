@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, User, Wrench } from 'lucide-react';
 
 const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,7 +24,8 @@ const AuthPage = () => {
     email: '',
     password: '',
     fullName: '',
-    phone: ''
+    phone: '',
+    role: 'customer'
   });
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -55,7 +58,8 @@ const AuthPage = () => {
       signUpData.email, 
       signUpData.password, 
       signUpData.fullName, 
-      signUpData.phone
+      signUpData.phone,
+      signUpData.role
     );
     
     if (error) {
@@ -172,6 +176,31 @@ const AuthPage = () => {
                     onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
                     required
                   />
+                </div>
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">I am a:</label>
+                  <RadioGroup 
+                    value={signUpData.role} 
+                    onValueChange={(value) => setSignUpData({ ...signUpData, role: value })}
+                    className="flex flex-col space-y-2"
+                  >
+                    <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+                      <RadioGroupItem value="customer" id="customer" />
+                      <User className="w-5 h-5 text-gray-600" />
+                      <Label htmlFor="customer" className="flex-1 cursor-pointer">
+                        <div className="font-medium">Customer</div>
+                        <div className="text-sm text-gray-500">I need home services</div>
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+                      <RadioGroupItem value="service_provider" id="service_provider" />
+                      <Wrench className="w-5 h-5 text-gray-600" />
+                      <Label htmlFor="service_provider" className="flex-1 cursor-pointer">
+                        <div className="font-medium">Service Provider</div>
+                        <div className="text-sm text-gray-500">I provide home services</div>
+                      </Label>
+                    </div>
+                  </RadioGroup>
                 </div>
                 <Button type="submit" className="w-full bg-orange-600 hover:bg-orange-700" disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
