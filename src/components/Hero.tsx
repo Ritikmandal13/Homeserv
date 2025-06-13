@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Star, Users, Check } from 'lucide-react';
@@ -11,7 +10,7 @@ const Hero = () => {
           <div className="space-y-8">
             <div className="space-y-4">
               <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                India's Most
+                Most
                 <span className="text-orange-600 block">Trusted Home</span>
                 Services Platform
               </h1>

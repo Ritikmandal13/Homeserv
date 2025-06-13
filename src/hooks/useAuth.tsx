@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -31,80 +30,127 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
 
   const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    
-    if (!error && data) {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return false;
+      }
+
+      if (!data) {
+        console.error('Profile not found');
+        return false;
+      }
+
       setProfile(data);
+      return true;
+    } catch (err) {
+      console.error('Unexpected error fetching profile:', err);
+      return false;
     }
   };
 
-  useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
-        }
-        
-        setLoading(false);
-      }
-    );
+  const handleAuthStateChange = async (event: string, session: Session | null) => {
+    if (!initialized) {
+      setInitialized(true);
+    }
 
-    // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    if (session?.user) {
+      setUser(session.user);
       setSession(session);
-      setUser(session?.user ?? null);
+      const profileExists = await fetchProfile(session.user.id);
       
-      if (session?.user) {
-        await fetchProfile(session.user.id);
+      if (!profileExists) {
+        console.log('Profile not found, signing out');
+        await supabase.auth.signOut();
+        setUser(null);
+        setSession(null);
+        setProfile(null);
       }
-      
-      setLoading(false);
+    } else {
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+    }
+    
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    let mounted = true;
+
+    // Get initial session first
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (mounted) {
+        handleAuthStateChange('INITIAL_SESSION', session);
+      }
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    // Then set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (mounted && initialized) {
+        handleAuthStateChange(event, session);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [initialized]);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      return { error };
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signUp = async (email: string, password: string, fullName: string, phone: string, role: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: fullName,
-          phone: phone,
-          role: role,
+    setLoading(true);
+    try {
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: fullName,
+            phone: phone,
+            role: role,
+          }
         }
-      }
-    });
-    return { error };
+      });
+      return { error };
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setProfile(null);
+    setLoading(true);
+    try {
+      await supabase.auth.signOut();
+      setProfile(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

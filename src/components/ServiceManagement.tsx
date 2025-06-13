@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +27,7 @@ interface ProviderService {
   base_price: number;
   duration_minutes: number;
   is_active: boolean;
+  provider_service_id?: string; // Reference to junction table record
 }
 
 const ServiceManagement = () => {
@@ -76,19 +76,22 @@ const ServiceManagement = () => {
         .single();
 
       if (providerData) {
-        const { data, error } = await supabase
-          .from('services')
-          .select('*')
-          .eq('provider_id', providerData.id);
+        // Use the RPC function to get provider services
+        const { data, error } = await (supabase as any)
+          .rpc('get_provider_services', { provider_id: providerData.id });
 
         if (error) {
           console.error('Error fetching services:', error);
+          setServices([]);
         } else {
           setServices(data || []);
         }
+      } else {
+        setServices([]);
       }
     } catch (error) {
       console.error('Error:', error);
+      setServices([]);
     } finally {
       setLoading(false);
     }
@@ -96,57 +99,59 @@ const ServiceManagement = () => {
 
   const onSubmit = async (data: ServiceFormData) => {
     try {
-      // Get service provider ID
-      const { data: providerData } = await supabase
-        .from('service_providers')
-        .select('id')
-        .eq('user_id', user?.id)
-        .single();
+      if (editingService && editingService.provider_service_id) {
+        // For editing, update the provider service
+        const { data: result, error } = await (supabase as any)
+          .rpc('update_provider_service', {
+            provider_user_id: user?.id,
+            provider_service_id: editingService.provider_service_id,
+            new_custom_price: data.base_price
+          });
 
-      if (!providerData) {
-        toast({
-          title: "Error",
-          description: "Service provider profile not found. Please complete your profile first.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const serviceData = {
-        ...data,
-        provider_id: providerData.id,
-        is_active: true,
-      };
-
-      let error;
-      if (editingService) {
-        const { error: updateError } = await supabase
-          .from('services')
-          .update(serviceData)
-          .eq('id', editingService.id);
-        error = updateError;
+        if (error || (result && result.error)) {
+          toast({
+            title: "Error",
+            description: (result && result.error) || "Failed to update service. Please try again.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Success",
+            description: "Service updated successfully!",
+          });
+          form.reset();
+          setShowForm(false);
+          setEditingService(null);
+          fetchServices();
+        }
       } else {
-        const { error: insertError } = await supabase
-          .from('services')
-          .insert([serviceData]);
-        error = insertError;
-      }
+        // For new services, use the add function
+        const { data: result, error } = await (supabase as any)
+          .rpc('add_provider_service', {
+            provider_user_id: user?.id,
+            service_name: data.name,
+            service_description: data.description,
+            service_category: data.category,
+            service_base_price: data.base_price,
+            service_duration_minutes: data.duration_minutes,
+            custom_price: data.base_price
+          });
 
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to save service. Please try again.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: editingService ? "Service updated successfully!" : "Service added successfully!",
-        });
-        form.reset();
-        setShowForm(false);
-        setEditingService(null);
-        fetchServices();
+        if (error || (result && result.error)) {
+          toast({
+            title: "Error",
+            description: (result && result.error) || "Failed to create service. Please try again.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Success",
+            description: "Service added successfully!",
+          });
+          form.reset();
+          setShowForm(false);
+          fetchServices();
+        }
       }
     } catch (error) {
       console.error('Error saving service:', error);
@@ -170,17 +175,18 @@ const ServiceManagement = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (serviceId: string) => {
+  const handleDelete = async (service: ProviderService) => {
     try {
-      const { error } = await supabase
-        .from('services')
-        .delete()
-        .eq('id', serviceId);
+      const { data: result, error } = await (supabase as any)
+        .rpc('delete_provider_service_by_id', {
+          provider_user_id: user?.id,
+          provider_service_id: service.provider_service_id
+        });
 
-      if (error) {
+      if (error || (result && result.error)) {
         toast({
           title: "Error",
-          description: "Failed to delete service.",
+          description: (result && result.error) || "Failed to delete service.",
           variant: "destructive",
         });
       } else {
@@ -192,6 +198,11 @@ const ServiceManagement = () => {
       }
     } catch (error) {
       console.error('Error deleting service:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -393,7 +404,7 @@ const ServiceManagement = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleDelete(service.id)}
+                    onClick={() => handleDelete(service)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>

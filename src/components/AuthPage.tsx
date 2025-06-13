@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,12 +7,14 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import { Loader2, User, Wrench } from 'lucide-react';
 
 const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [signInData, setSignInData] = useState({
     email: '',
@@ -45,6 +46,7 @@ const AuthPage = () => {
         title: "Welcome back!",
         description: "You have been signed in successfully.",
       });
+      navigate('/');
     }
     
     setIsLoading(false);
@@ -53,6 +55,8 @@ const AuthPage = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    console.log('Role at signup:', signUpData.role);
 
     const { error } = await signUp(
       signUpData.email, 

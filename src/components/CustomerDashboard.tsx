@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +15,12 @@ interface Service {
   base_price: number;
   duration_minutes: number;
   provider_id: string;
+  provider_name: string;
+  provider_business_name: string;
+  provider_rating: number;
+  provider_total_jobs: number;
+  is_verified: boolean;
+  custom_price?: number;
 }
 
 const CustomerDashboard = () => {
@@ -37,30 +42,24 @@ const CustomerDashboard = () => {
     home_maintenance: Wrench,
   };
 
-  const recentBookings = [
-    { service: 'Plumbing Repair', date: '2024-01-15', status: 'Completed', rating: 5 },
-    { service: 'House Cleaning', date: '2024-01-10', status: 'Completed', rating: 4 },
-  ];
-
   useEffect(() => {
     fetchServices();
   }, []);
 
   const fetchServices = async () => {
     try {
-      const { data, error } = await supabase
-        .from('services')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+      const { data, error } = await (supabase as any)
+        .rpc('get_all_provider_services');
 
       if (error) {
         console.error('Error fetching services:', error);
+        setServices([]);
       } else {
         setServices(data || []);
       }
     } catch (error) {
       console.error('Error:', error);
+      setServices([]);
     } finally {
       setLoading(false);
     }
@@ -82,17 +81,7 @@ const CustomerDashboard = () => {
       <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
         <div className="container mx-auto px-4 py-12">
           <h1 className="text-3xl font-bold mb-4">Book Trusted Home Services</h1>
-          <p className="text-xl mb-6">Professional services at your doorstep across India</p>
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md">
-            <div className="flex items-center space-x-2 text-orange-100">
-              <MapPin className="w-5 h-5" />
-              <span>Serving 500+ cities</span>
-            </div>
-            <div className="flex items-center space-x-2 text-orange-100">
-              <Phone className="w-5 h-5" />
-              <span>24/7 Support</span>
-            </div>
-          </div>
+          <p className="text-xl mb-6">Professional services at your doorstep</p>
         </div>
       </div>
 
@@ -113,19 +102,36 @@ const CustomerDashboard = () => {
                         <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
                           <IconComponent className="w-6 h-6 text-orange-600" />
                         </div>
-                        <div>
+                        <div className="flex-1">
                           <CardTitle className="text-lg">{service.name}</CardTitle>
                           <CardDescription className="text-orange-600 font-semibold">
                             Starting from ₹{service.base_price}
                           </CardDescription>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-sm text-gray-600">
+                              by {service.provider_business_name || service.provider_name}
+                            </span>
+                            {service.is_verified && (
+                              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                                Verified
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-gray-600 mb-2">{service.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                      <p className="text-gray-600 mb-3">{service.description}</p>
+                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
                         <span>Duration: {service.duration_minutes} mins</span>
                         <span className="capitalize">{service.category.replace('_', ' ')}</span>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          <span>{service.provider_rating.toFixed(1)}</span>
+                        </div>
+                        <span>{service.provider_total_jobs} jobs completed</span>
                       </div>
                       <Button 
                         className="w-full bg-orange-600 hover:bg-orange-700"
@@ -143,36 +149,6 @@ const CustomerDashboard = () => {
               <p className="text-gray-500">No services available at the moment.</p>
             </div>
           )}
-        </div>
-
-        {/* Recent Bookings */}
-        <div>
-          <h2 className="text-2xl font-bold mb-6">Recent Bookings</h2>
-          <div className="space-y-4">
-            {recentBookings.map((booking, index) => (
-              <Card key={index}>
-                <CardContent className="flex items-center justify-between p-6">
-                  <div className="flex items-center space-x-4">
-                    <Calendar className="w-8 h-8 text-orange-600" />
-                    <div>
-                      <h3 className="font-semibold">{booking.service}</h3>
-                      <p className="text-gray-600">{booking.date}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                      {booking.status}
-                    </span>
-                    <div className="flex items-center space-x-1">
-                      {[...Array(booking.rating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
         </div>
       </div>
 

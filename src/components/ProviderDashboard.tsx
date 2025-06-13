@@ -1,46 +1,53 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Clock, MapPin, Star, TrendingUp, Users, DollarSign, CheckCircle, Settings } from 'lucide-react';
+import { Calendar, Clock, MapPin, Star, TrendingUp, Users, CheckCircle, Settings } from 'lucide-react';
 import ServiceManagement from './ServiceManagement';
+import BookingManagement from './BookingManagement';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 const ProviderDashboard = () => {
-  const stats = [
-    { title: 'Total Earnings', value: '₹45,250', icon: DollarSign, change: '+12%' },
-    { title: 'Jobs Completed', value: '127', icon: CheckCircle, change: '+8%' },
-    { title: 'Rating', value: '4.8', icon: Star, change: '+0.2' },
-    { title: 'Active Bookings', value: '5', icon: Calendar, change: '+2' },
-  ];
+  const { user } = useAuth();
+  const [stats, setStats] = useState({
+    totalBookings: 0,
+    pendingBookings: 0,
+    completedJobs: 0,
+    totalEarnings: 0
+  });
 
-  const pendingBookings = [
-    {
-      service: 'Plumbing Repair',
-      customer: 'Rajesh Kumar',
-      date: '2024-01-16',
-      time: '10:00 AM',
-      location: 'Sector 15, Gurgaon',
-      amount: '₹450'
-    },
-    {
-      service: 'AC Installation',
-      customer: 'Priya Sharma',
-      date: '2024-01-16',
-      time: '2:00 PM',
-      location: 'Koramangala, Bangalore',
-      amount: '₹1,200'
-    },
-    {
-      service: 'House Cleaning',
-      customer: 'Amit Patel',
-      date: '2024-01-17',
-      time: '9:00 AM',
-      location: 'Andheri West, Mumbai',
-      amount: '₹800'
-    },
-  ];
+  useEffect(() => {
+    if (user) {
+      fetchStats();
+    }
+  }, [user]);
+
+  const fetchStats = async () => {
+    try {
+      const { data: bookings, error } = await (supabase as any)
+        .rpc('get_provider_bookings', { provider_user_id: user?.id });
+
+      if (!error && bookings) {
+        const totalBookings = bookings.length;
+        const pendingBookings = bookings.filter((b: any) => b.status === 'pending').length;
+        const completedJobs = bookings.filter((b: any) => b.status === 'completed').length;
+        const totalEarnings = bookings
+          .filter((b: any) => b.status === 'completed')
+          .reduce((sum: number, b: any) => sum + Number(b.total_amount), 0);
+
+        setStats({
+          totalBookings,
+          pendingBookings,
+          completedJobs,
+          totalEarnings
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -69,25 +76,53 @@ const ProviderDashboard = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => (
-            <Card key={index}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">{stat.title}</p>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                    <div className="flex items-center mt-1">
-                      <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-                      <span className="text-sm text-green-500">{stat.change}</span>
-                    </div>
-                  </div>
-                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <stat.icon className="w-6 h-6 text-orange-600" />
-                  </div>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <Calendar className="h-8 w-8 text-orange-600" />
+                <div className="ml-4">
+                  <p className="text-2xl font-bold">{stats.totalBookings}</p>
+                  <p className="text-gray-600">Total Bookings</p>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <Clock className="h-8 w-8 text-yellow-600" />
+                <div className="ml-4">
+                  <p className="text-2xl font-bold">{stats.pendingBookings}</p>
+                  <p className="text-gray-600">Pending</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <CheckCircle className="h-8 w-8 text-green-600" />
+                <div className="ml-4">
+                  <p className="text-2xl font-bold">{stats.completedJobs}</p>
+                  <p className="text-gray-600">Completed</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <TrendingUp className="h-8 w-8 text-blue-600" />
+                <div className="ml-4">
+                  <p className="text-2xl font-bold">₹{stats.totalEarnings}</p>
+                  <p className="text-gray-600">Total Earnings</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Main Content Tabs */}
@@ -99,59 +134,7 @@ const ProviderDashboard = () => {
           </TabsList>
 
           <TabsContent value="bookings">
-            {/* Pending Bookings */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold">Pending Bookings</h2>
-                <Button variant="outline">View All</Button>
-              </div>
-              <div className="space-y-4">
-                {pendingBookings.map((booking, index) => (
-                  <Card key={index} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-4 mb-3">
-                            <div>
-                              <h3 className="font-semibold text-lg">{booking.service}</h3>
-                              <p className="text-gray-600">Customer: {booking.customer}</p>
-                            </div>
-                            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                              Pending
-                            </Badge>
-                          </div>
-                          <div className="flex items-center space-x-6 text-sm text-gray-600">
-                            <div className="flex items-center space-x-1">
-                              <Calendar className="w-4 h-4" />
-                              <span>{booking.date}</span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <Clock className="w-4 h-4" />
-                              <span>{booking.time}</span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <MapPin className="w-4 h-4" />
-                              <span>{booking.location}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-xl font-bold text-green-600">{booking.amount}</p>
-                          <div className="flex space-x-2 mt-2">
-                            <Button size="sm" variant="outline">
-                              Decline
-                            </Button>
-                            <Button size="sm" className="bg-orange-600 hover:bg-orange-700">
-                              Accept
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
+            <BookingManagement />
           </TabsContent>
 
           <TabsContent value="services">

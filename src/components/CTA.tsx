@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Phone } from 'lucide-react';
@@ -12,7 +11,7 @@ const CTA = () => {
             Ready to Book Your Service?
           </h2>
           <p className="text-xl text-orange-100 mb-8 leading-relaxed">
-            Join 2 million+ happy customers across India. Get verified professionals, 
+            Join 2 million+ happy customers. Get verified professionals, 
             transparent pricing, and reliable service at your doorstep.
           </p>
           
