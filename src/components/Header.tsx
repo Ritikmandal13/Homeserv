@@ -47,7 +47,7 @@ const Header = () => {
           >
             <div className="w-10 h-10 bg-gradient-to-br from-orange-500 via-orange-600 to-red-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
               <span className="text-white font-bold text-xl">H</span>
-            </div>
+          </div>
             <div className="flex flex-col">
               <span className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                 HomeServ
@@ -56,8 +56,8 @@ const Header = () => {
                 India Connect
               </span>
             </div>
-          </div>
-          
+        </div>
+        
           {/* Navigation - Only show for unauthenticated users or on landing page */}
           {!user && (
             <nav className="hidden lg:flex items-center space-x-8">
@@ -77,11 +77,11 @@ const Header = () => {
                 Contact
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-600 transition-all duration-200 group-hover:w-full"></span>
               </a>
-            </nav>
+        </nav>
           )}
 
           {/* Right Section */}
-          <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4">
             {/* Contact Info */}
             <div className="hidden xl:flex items-center space-x-6">
               <a 
@@ -95,8 +95,8 @@ const Header = () => {
                   <span className="text-xs text-gray-500">Call us</span>
                   <span className="text-sm font-medium">+91-8888-888-888</span>
                 </div>
-              </a>
-              
+          </a>
+          
               <a 
                 href="mailto:info@homeserv.com" 
                 className="flex items-center space-x-2 text-gray-600 hover:text-orange-600 transition-all duration-200 group"
@@ -117,7 +117,7 @@ const Header = () => {
             )}
             
             {/* User Section */}
-            {user ? (
+          {user ? (
               <div className="flex items-center space-x-3">
                 {/* User Greeting */}
                 <div className="hidden md:flex flex-col items-end">
@@ -130,16 +130,16 @@ const Header = () => {
                 </div>
 
                 {/* Profile Dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:ring-2 hover:ring-orange-200 transition-all duration-200">
                       <Avatar className="h-10 w-10 ring-2 ring-white shadow-md">
                         <AvatarFallback className="bg-gradient-to-br from-orange-500 to-orange-600 text-white font-semibold">
                           {getUserInitials()}
                         </AvatarFallback>
                       </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
+                </Button>
+              </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56 mt-2 p-2 shadow-xl border-0 bg-white/95 backdrop-blur-lg">
                     <div className="px-3 py-2 mb-2">
                       <p className="text-sm font-medium text-gray-900">
@@ -160,20 +160,6 @@ const Header = () => {
                       <User className="mr-3 h-4 w-4 text-orange-600" />
                       Profile Settings
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => navigate('/profile/update')}
-                      className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-orange-50 transition-colors cursor-pointer"
-                    >
-                      <Edit className="mr-3 h-4 w-4 text-orange-600" />
-                      Update Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => navigate('/profile/reviews')}
-                      className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-orange-50 transition-colors cursor-pointer"
-                    >
-                      <Star className="mr-3 h-4 w-4 text-orange-600" />
-                      View Reviews
-                    </DropdownMenuItem>
                     {profile?.role === 'service_provider' && (
                       <DropdownMenuItem
                         onClick={() => navigate('/profile/earnings')}
@@ -181,35 +167,35 @@ const Header = () => {
                       >
                         <BarChart2 className="mr-3 h-4 w-4 text-orange-600" />
                         Earning Report
-                      </DropdownMenuItem>
+                </DropdownMenuItem>
                     )}
                     <DropdownMenuItem 
                       onClick={() => navigate('/bookings')}
                       className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-orange-50 transition-colors cursor-pointer"
                     >
                       <Calendar className="mr-3 h-4 w-4 text-orange-600" />
-                      My Bookings
-                    </DropdownMenuItem>
+                  My Bookings
+                </DropdownMenuItem>
                     <DropdownMenuSeparator className="my-2" />
                     <DropdownMenuItem 
                       onClick={handleSignOut}
                       className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-red-50 text-red-600 transition-colors cursor-pointer"
                     >
                       <LogOut className="mr-3 h-4 w-4" />
-                      Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
               </div>
-            ) : (
-              <Button 
-                onClick={handleAuthClick}
+          ) : (
+            <Button 
+              onClick={handleAuthClick}
                 className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-2 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-              >
+            >
                 <User className="w-4 h-4 mr-2" />
                 Sign In
-              </Button>
-            )}
+            </Button>
+          )}
           </div>
         </div>
       </div>

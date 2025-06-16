@@ -9,8 +9,6 @@ import { useNavigate } from 'react-router-dom';
 const ProfilePage = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const [fullName] = useState(profile?.full_name || '');
-  const [phone] = useState(profile?.phone || '');
 
   if (!user || !profile) {
     return (
@@ -40,21 +38,21 @@ const ProfilePage = () => {
           <div className="w-32 h-32 rounded-full bg-orange-200 flex items-center justify-center shadow-lg mb-4 border-4 border-white">
             <UserIcon className="w-20 h-20 text-orange-500" />
           </div>
-          <div className="text-2xl font-bold text-gray-800 mb-1">{fullName}</div>
+          <div className="text-2xl font-bold text-gray-800 mb-1">{profile?.full_name}</div>
           <div className="text-base text-gray-500">{user.email}</div>
         </div>
         <CardContent className="w-full flex flex-col gap-8">
           <div className="flex flex-col gap-2">
             <label className="text-base font-semibold text-gray-700">Full Name</label>
-            <Input value={fullName} disabled className="bg-white/80 text-lg py-3 px-4 rounded-xl border border-gray-200" />
+            <Input value={profile?.full_name || ''} disabled className="bg-white/80 text-lg py-3 px-4 rounded-xl border border-gray-200" />
           </div>
           <div className="flex flex-col gap-2">
             <label className="text-base font-semibold text-gray-700">Phone</label>
-            <Input value={phone} disabled className="bg-white/80 text-lg py-3 px-4 rounded-xl border border-gray-200" />
+            <Input value={profile?.phone || ''} disabled className="bg-white/80 text-lg py-3 px-4 rounded-xl border border-gray-200" />
           </div>
           <div className="flex flex-col gap-2">
             <label className="text-base font-semibold text-gray-700">Role</label>
-            <Input value={profile.role} disabled className="bg-white/80 text-lg py-3 px-4 rounded-xl border border-gray-200 capitalize" />
+            <Input value={profile?.role || ''} disabled className="bg-white/80 text-lg py-3 px-4 rounded-xl border border-gray-200 capitalize" />
           </div>
         </CardContent>
       </Card>

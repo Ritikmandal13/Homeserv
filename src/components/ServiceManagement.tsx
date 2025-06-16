@@ -109,20 +109,20 @@ const ServiceManagement = () => {
           });
 
         if (error || (result && result.error)) {
-          toast({
-            title: "Error",
+        toast({
+          title: "Error",
             description: (result && result.error) || "Failed to update service. Please try again.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Success",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
             description: "Service updated successfully!",
-          });
-          form.reset();
-          setShowForm(false);
-          setEditingService(null);
-          fetchServices();
+        });
+        form.reset();
+        setShowForm(false);
+        setEditingService(null);
+        fetchServices();
         }
       } else {
         // For new services, use the add function

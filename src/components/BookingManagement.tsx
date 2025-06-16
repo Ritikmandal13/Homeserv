@@ -138,7 +138,7 @@ const BookingManagement = () => {
                     <div>
                       <CardTitle className="text-lg">{booking.service_name}</CardTitle>
                       <CardDescription>
-                        <div className="flex items-center gap-2 mt-1">
+                        <span className="flex items-center gap-2 mt-1">
                           <User className="w-4 h-4" />
                           <span>{booking.customer_name}</span>
                           {booking.customer_phone && (
@@ -147,7 +147,7 @@ const BookingManagement = () => {
                               <span>{booking.customer_phone}</span>
                             </>
                           )}
-                        </div>
+                        </span>
                       </CardDescription>
                     </div>
                     <Badge className={getStatusColor(booking.status)}>
@@ -225,7 +225,7 @@ const BookingManagement = () => {
                     <div>
                       <CardTitle className="text-lg">{booking.service_name}</CardTitle>
                       <CardDescription>
-                        <div className="flex items-center gap-2 mt-1">
+                        <span className="flex items-center gap-2 mt-1">
                           <User className="w-4 h-4" />
                           <span>{booking.customer_name}</span>
                           {booking.customer_phone && (
@@ -234,7 +234,7 @@ const BookingManagement = () => {
                               <span>{booking.customer_phone}</span>
                             </>
                           )}
-                        </div>
+                        </span>
                       </CardDescription>
                     </div>
                     <Badge className={getStatusColor(booking.status)}>

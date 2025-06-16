@@ -31,6 +31,7 @@ const CustomerDashboard = () => {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [showBookingDialog, setShowBookingDialog] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [showCategoriesBar, setShowCategoriesBar] = useState(false);
 
   const categoryIcons: { [key: string]: any } = {
     plumbing: Droplets,
@@ -104,8 +105,43 @@ const CustomerDashboard = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Categories Bar */}
-        <div className="mb-8">
+        {/* Categories Toggle Button (Mobile Only, Left Side) */}
+        <div className="mb-4 md:hidden flex justify-start">
+          <Button
+            className="bg-orange-600 text-white px-6 py-2 rounded-full font-semibold shadow-md"
+            onClick={() => setShowCategoriesBar((prev) => !prev)}
+            aria-expanded={showCategoriesBar}
+            aria-controls="categories-bar"
+          >
+            Categories
+          </Button>
+        </div>
+        {/* Vertical Categories List (Mobile Only) */}
+        {showCategoriesBar && (
+          <div className="mb-4 md:hidden flex flex-col gap-2 w-48">
+            <button
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors whitespace-nowrap text-left ${selectedCategory === 'all' ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-orange-600 border-orange-200 hover:bg-orange-50'}`}
+              onClick={() => { setSelectedCategory('all'); setShowCategoriesBar(false); }}
+            >
+              <span className="text-lg font-semibold">All</span>
+            </button>
+            {serviceCategories.map((cat) => {
+              const Icon = cat.icon;
+              return (
+                <button
+                  key={cat.value}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors whitespace-nowrap text-left ${selectedCategory === cat.value ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-orange-600 border-orange-200 hover:bg-orange-50'}`}
+                  onClick={() => { setSelectedCategory(cat.value); setShowCategoriesBar(false); }}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="text-sm font-medium">{cat.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+        {/* Categories Bar (Desktop Only) */}
+        <div className="mb-8 hidden md:block" id="categories-bar">
           <div className="relative">
             <ScrollArea className="w-full overflow-x-auto">
               <div className="flex flex-nowrap min-w-fit space-x-3 pb-2 px-1 md:px-0" style={{ WebkitOverflowScrolling: 'touch' }}>

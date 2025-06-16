@@ -1,7 +1,11 @@
 import React from 'react';
 import { Phone, Map, Home, User, Wrench, Calendar } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 const Footer = () => {
+  const { profile } = useAuth();
+  const isProvider = profile?.role === 'service_provider';
+
   return (
     <>
       {/* Mobile App Footer Nav */}
@@ -10,15 +14,17 @@ const Footer = () => {
           <Home className="w-6 h-6" />
           <span className="text-xs mt-1">Home</span>
         </a>
-        <a href="/bookings" className="flex flex-col items-center text-gray-500 hover:text-orange-600">
-          <Calendar className="w-6 h-6" />
-          <span className="text-xs mt-1">Bookings</span>
-        </a>
-        <a href="/services" className="flex flex-col items-center text-gray-500 hover:text-orange-600">
-          <Wrench className="w-6 h-6" />
-          <span className="text-xs mt-1">Services</span>
-        </a>
-        <a href="/account" className="flex flex-col items-center text-gray-500 hover:text-orange-600">
+        {isProvider ? (
+          null
+        ) : (
+          <>
+            <a href="/bookings" className="flex flex-col items-center text-gray-500 hover:text-orange-600">
+              <Calendar className="w-6 h-6" />
+              <span className="text-xs mt-1">Bookings</span>
+            </a>
+          </>
+        )}
+        <a href="/profile" className="flex flex-col items-center text-gray-500 hover:text-orange-600">
           <User className="w-6 h-6" />
           <span className="text-xs mt-1">Account</span>
         </a>

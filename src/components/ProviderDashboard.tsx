@@ -18,6 +18,23 @@ const ProviderDashboard = () => {
     totalEarnings: 0
   });
 
+  // Tab state based on hash
+  const [activeTab, setActiveTab] = useState('bookings');
+
+  // Set tab based on hash on mount and when hash changes
+  useEffect(() => {
+    const setTabFromHash = () => {
+      if (window.location.hash === '#services') {
+        setActiveTab('services');
+      } else {
+        setActiveTab('bookings');
+      }
+    };
+    setTabFromHash();
+    window.addEventListener('hashchange', setTabFromHash);
+    return () => window.removeEventListener('hashchange', setTabFromHash);
+  }, []);
+
   useEffect(() => {
     if (user) {
       fetchStats();
@@ -126,7 +143,7 @@ const ProviderDashboard = () => {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="bookings" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="bookings">Bookings</TabsTrigger>
             <TabsTrigger value="services">My Services</TabsTrigger>
