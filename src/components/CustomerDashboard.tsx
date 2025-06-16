@@ -6,6 +6,7 @@ import { Calendar, MapPin, Phone, Star, Wrench, Zap, Paintbrush, Car, Shield, Dr
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import ServiceBooking from './ServiceBooking';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Service {
   id: string;
@@ -29,6 +30,7 @@ const CustomerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [showBookingDialog, setShowBookingDialog] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const categoryIcons: { [key: string]: any } = {
     plumbing: Droplets,
@@ -41,6 +43,18 @@ const CustomerDashboard = () => {
     appliance_repair: Wrench,
     home_maintenance: Wrench,
   };
+
+  const serviceCategories = [
+    { value: 'plumbing', label: 'Plumbing', icon: Droplets },
+    { value: 'electrical', label: 'Electrical', icon: Zap },
+    { value: 'cleaning', label: 'Cleaning', icon: Shield },
+    { value: 'carpentry', label: 'Carpentry', icon: Wrench },
+    { value: 'painting', label: 'Painting', icon: Paintbrush },
+    { value: 'ac_repair', label: 'AC Repair', icon: Car },
+    { value: 'pest_control', label: 'Pest Control', icon: Shield },
+    { value: 'appliance_repair', label: 'Appliance Repair', icon: Wrench },
+    { value: 'home_maintenance', label: 'Home Maintenance', icon: Wrench },
+  ];
 
   useEffect(() => {
     fetchServices();
@@ -75,6 +89,10 @@ const CustomerDashboard = () => {
     setSelectedService(null);
   };
 
+  const filteredServices = selectedCategory === 'all'
+    ? services
+    : services.filter((service) => service.category === selectedCategory);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -86,14 +104,43 @@ const CustomerDashboard = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Categories Bar */}
+        <div className="mb-8">
+          <div className="relative">
+            <ScrollArea className="w-full overflow-x-auto">
+              <div className="flex flex-nowrap min-w-fit space-x-3 pb-2 px-1 md:px-0" style={{ WebkitOverflowScrolling: 'touch' }}>
+                <button
+                  className={`flex flex-col items-center px-4 py-2 rounded-lg border transition-colors whitespace-nowrap ${selectedCategory === 'all' ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-orange-600 border-orange-200 hover:bg-orange-50'}`}
+                  onClick={() => setSelectedCategory('all')}
+                >
+                  <span className="text-lg font-semibold">All</span>
+                </button>
+                {serviceCategories.map((cat) => {
+                  const Icon = cat.icon;
+                  return (
+                    <button
+                      key={cat.value}
+                      className={`flex flex-col items-center px-4 py-2 rounded-lg border transition-colors whitespace-nowrap ${selectedCategory === cat.value ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-orange-600 border-orange-200 hover:bg-orange-50'}`}
+                      onClick={() => setSelectedCategory(cat.value)}
+                    >
+                      <Icon className="w-6 h-6 mb-1" />
+                      <span className="text-sm font-medium">{cat.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white/90 to-transparent block" />
+            </ScrollArea>
+          </div>
+        </div>
         {/* Services Grid */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-6">Available Services</h2>
           {loading ? (
             <div className="text-center py-8">Loading services...</div>
-          ) : services.length > 0 ? (
+          ) : filteredServices.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {services.map((service) => {
+              {filteredServices.map((service) => {
                 const IconComponent = categoryIcons[service.category] || Wrench;
                 return (
                   <Card key={service.id} className="hover:shadow-lg transition-shadow cursor-pointer">

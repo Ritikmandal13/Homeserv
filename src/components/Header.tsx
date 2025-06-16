@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Phone, User, LogOut, Calendar, Mail, MapPin } from 'lucide-react';
+import { Phone, User, LogOut, Calendar, Mail, MapPin, Edit, Star, BarChart2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -160,15 +160,36 @@ const Header = () => {
                       <User className="mr-3 h-4 w-4 text-orange-600" />
                       Profile Settings
                     </DropdownMenuItem>
-                    {profile?.role === 'customer' && (
-                      <DropdownMenuItem 
-                        onClick={() => navigate('/bookings')}
+                    <DropdownMenuItem
+                      onClick={() => navigate('/profile/update')}
+                      className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-orange-50 transition-colors cursor-pointer"
+                    >
+                      <Edit className="mr-3 h-4 w-4 text-orange-600" />
+                      Update Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => navigate('/profile/reviews')}
+                      className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-orange-50 transition-colors cursor-pointer"
+                    >
+                      <Star className="mr-3 h-4 w-4 text-orange-600" />
+                      View Reviews
+                    </DropdownMenuItem>
+                    {profile?.role === 'service_provider' && (
+                      <DropdownMenuItem
+                        onClick={() => navigate('/profile/earnings')}
                         className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-orange-50 transition-colors cursor-pointer"
                       >
-                        <Calendar className="mr-3 h-4 w-4 text-orange-600" />
-                        My Bookings
+                        <BarChart2 className="mr-3 h-4 w-4 text-orange-600" />
+                        Earning Report
                       </DropdownMenuItem>
                     )}
+                    <DropdownMenuItem 
+                      onClick={() => navigate('/bookings')}
+                      className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-orange-50 transition-colors cursor-pointer"
+                    >
+                      <Calendar className="mr-3 h-4 w-4 text-orange-600" />
+                      My Bookings
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator className="my-2" />
                     <DropdownMenuItem 
                       onClick={handleSignOut}
